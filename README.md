@@ -12,17 +12,18 @@ A fast, privacy-first text comparison tool with side-by-side word and line diffs
 - Options to ignore letter case and normalize whitespace
 - Swap, clear, and edit controls
 - Keyboard shortcuts for faster comparisons
+- Per-tab session recovery after a page refresh
 - Responsive desktop and mobile layouts
 - No accounts, database, analytics, or server-side processing
 
 ## Privacy
 
-All comparison logic runs locally in the browser. Entered text exists only in temporary JavaScript memory and disappears when the page is refreshed or closed.
+All comparison logic runs locally in the browser. Entered text is saved in `sessionStorage`, so it survives a page refresh in the same tab. The browser clears that session data when the tab is closed.
 
 Diffly does not use:
 
 - A backend API or database
-- Cookies or browser storage
+- Cookies, persistent local storage, or cross-tab synchronization
 - Analytics or tracking scripts
 - Third-party text-processing services
 

@@ -19,6 +19,7 @@ await Promise.all([
   cp(path.join(projectRoot, "src", "app.js"), path.join(outputDirectory, "src", "app.js")),
   cp(path.join(projectRoot, "src", "styles.css"), path.join(outputDirectory, "src", "styles.css")),
   cp(path.join(projectRoot, "src", "lib", "diff.js"), path.join(outputDirectory, "src", "lib", "diff.js")),
+  cp(path.join(projectRoot, "src", "lib", "session.js"), path.join(outputDirectory, "src", "lib", "session.js")),
 ]);
 
 console.log(`Static site generated in public/ for ${siteUrl}`);

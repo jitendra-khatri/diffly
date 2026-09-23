@@ -1,4 +1,5 @@
 import { compareText } from "./lib/diff.js?v=2";
+import { readSessionContent, writeSessionContent } from "./lib/session.js?v=1";
 
 const icon = (paths) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 const icons = {
@@ -32,9 +33,14 @@ That’s why millions of people choose Diffly.
 
 Try it today and see the difference.`;
 
-const state = {
+const initialContent = readSessionContent(window.sessionStorage, {
   original: originalSample,
   revised: revisedSample,
+});
+
+const state = {
+  original: initialContent.original,
+  revised: initialContent.revised,
   options: { mode: "words", ignoreCase: false, trimWhitespace: false },
   showResults: true,
 };
@@ -91,6 +97,7 @@ document.querySelector("#root").innerHTML = `
           <li>Red marks text removed from the original.</li>
           <li>Green marks text added to the revision.</li>
           <li>Everything runs locally—your text is never uploaded.</li>
+          <li>Your text is kept only for this tab and cleared when it closes.</li>
         </ol>
         <p class="shortcut">Tip: press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to compare, or <kbd>Esc</kbd> to edit.</p>
       </section>
@@ -106,6 +113,10 @@ function makeElement(tag, className, text) {
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
   return element;
+}
+
+function persistContent() {
+  writeSessionContent(window.sessionStorage, state);
 }
 
 function renderLineContent(container, row, side) {
@@ -167,7 +178,10 @@ function createEditorPane(title, key, placeholder) {
   textarea.placeholder = placeholder;
   textarea.spellcheck = false;
   textarea.setAttribute("aria-label", `${title} text`);
-  textarea.addEventListener("input", () => { state[key] = textarea.value; });
+  textarea.addEventListener("input", () => {
+    state[key] = textarea.value;
+    persistContent();
+  });
   pane.append(header, textarea);
   return { pane, textarea };
 }
@@ -215,6 +229,7 @@ function compare() {
   document.querySelectorAll(".editor-pane textarea").forEach((textarea, index) => {
     state[index === 0 ? "original" : "revised"] = textarea.value;
   });
+  persistContent();
   state.showResults = true;
   render();
 }
@@ -224,9 +239,16 @@ document.querySelector("#lines-mode").addEventListener("click", () => { state.op
 document.querySelector("#ignore-case").addEventListener("change", (event) => { state.options.ignoreCase = event.target.checked; render(); });
 document.querySelector("#trim-whitespace").addEventListener("change", (event) => { state.options.trimWhitespace = event.target.checked; render(); });
 document.querySelector("#compare-button").addEventListener("click", compare);
-document.querySelector("#clear-button").addEventListener("click", () => { state.original = ""; state.revised = ""; state.showResults = false; render(); });
+document.querySelector("#clear-button").addEventListener("click", () => {
+  state.original = "";
+  state.revised = "";
+  state.showResults = false;
+  persistContent();
+  render();
+});
 document.querySelector("#swap-button").addEventListener("click", () => {
   [state.original, state.revised] = [state.revised, state.original];
+  persistContent();
   render();
 });
 document.querySelector("#help-button").addEventListener("click", () => { modal.hidden = false; document.querySelector("#close-help").focus(); });
