@@ -74,6 +74,20 @@ npx vercel
 
 Use `npx vercel --prod` when you are ready to publish the production deployment.
 
+## Vercel Hobby optimization
+
+This project is intentionally deployed as a fully static site:
+
+- No Vercel Functions, Middleware, databases, cron jobs, or server-side rendering
+- No Vercel Image Optimization; the social preview is served as a regular static PNG
+- No Web Analytics or Speed Insights scripts
+- No runtime dependency installation; the build uses Node.js built-ins only
+- Static JavaScript and CSS use long-lived browser caching with versioned URLs
+- HTML uses a short browser cache so deployments remain reasonably fresh
+- Comparison and session storage remain entirely in the visitor's browser
+
+The `.vercelignore` file also keeps generated output, tests, and non-production design files out of deployment uploads. Monitor **Project → Usage** in Vercel if traffic grows, and avoid enabling optional metered products unless they are needed.
+
 ## Social link preview
 
 The production build publishes `design/implementation.png` as `/og-image.png` and adds Open Graph and X/Twitter metadata automatically. Vercel's production URL is injected during the build, so sharing the deployed link displays the Diffly interface preview without hardcoding a domain.

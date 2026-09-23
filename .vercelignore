@@ -1,0 +1,9 @@
+# Generated again by the Vercel build.
+public/
+
+# Development and documentation files that are not needed by the build.
+design/concept.png
+src/lib/*.test.js
+README.md
+.DS_Store
+src/.DS_Store
