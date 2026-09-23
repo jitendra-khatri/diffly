@@ -73,6 +73,10 @@ npx vercel
 
 Use `npx vercel --prod` when you are ready to publish the production deployment.
 
+## Social link preview
+
+The production build publishes `design/implementation.png` as `/og-image.png` and adds Open Graph and X/Twitter metadata automatically. Vercel's production URL is injected during the build, so sharing the deployed link displays the Diffly interface preview without hardcoding a domain.
+
 ## Project structure
 
 ```text
