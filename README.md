@@ -63,8 +63,7 @@ npm run build
 1. Push this project to a GitHub repository.
 2. Import the repository in Vercel.
 3. Select **Other** as the framework preset.
-4. Leave the build and output settings at their defaults.
-5. Deploy.
+4. Deploy. The committed `vercel.json` runs `npm run build` and publishes the generated `public` directory.
 
 ### From the command line
 
