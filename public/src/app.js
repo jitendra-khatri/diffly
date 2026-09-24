@@ -87,7 +87,46 @@ document.querySelector("#root").innerHTML = `
           <span class="local-status">Compared locally in your browser</span>
         </footer>
       </section>
+      <section class="seo-content" aria-labelledby="about-diffly">
+        <div class="seo-intro">
+          <h2 id="about-diffly">Free online text comparison</h2>
+          <p>Diffly is a fast online diff checker for comparing two versions of text. Paste an original and a revised version to highlight additions, removals, and edits side by side.</p>
+        </div>
+        <div class="seo-details">
+          <article>
+            <h3>Compare words or lines</h3>
+            <p>Use word comparison for precise edits or switch to line comparison when reviewing larger documents, code snippets, drafts, and revisions.</p>
+          </article>
+          <article>
+            <h3>Keep comparisons private</h3>
+            <p>Your text is processed locally in your browser. It is never uploaded to Diffly, and session content is cleared when you close the tab.</p>
+          </article>
+          <article>
+            <h3>Review changes faster</h3>
+            <p>Clear red and green highlighting makes removed and added content easy to identify. You can also ignore letter case or normalize whitespace.</p>
+          </article>
+        </div>
+        <div class="seo-faq" aria-labelledby="faq-title">
+          <h2 id="faq-title">Text comparison questions</h2>
+          <details>
+            <summary>Is Diffly free to use?</summary>
+            <p>Yes. Diffly is a free online text comparison tool and does not require an account.</p>
+          </details>
+          <details>
+            <summary>Does Diffly store the text I compare?</summary>
+            <p>No server stores your text. Content is kept only in session storage for the current browser tab so it survives a refresh, then it is cleared when the tab closes.</p>
+          </details>
+          <details>
+            <summary>Can I compare text by words and by lines?</summary>
+            <p>Yes. Choose Words for detailed edits or Lines for a broader comparison of changed, added, and removed lines.</p>
+          </details>
+        </div>
+      </section>
     </main>
+    <footer class="site-footer">
+      <p><strong>Diffly</strong> — a private text comparison tool that runs in your browser.</p>
+      <a href="#top">Back to comparator</a>
+    </footer>
     <div class="modal-backdrop" id="help-modal" role="presentation" hidden>
       <section class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
         <button class="dialog-close" id="close-help" type="button" aria-label="Close">${icons.close}</button>

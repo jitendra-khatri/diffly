@@ -5,37 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Compare two pieces of text instantly with a private, browser-based word and line diff."
+      content="Compare text online for free with Diffly. Find word and line changes side by side in a private diff checker that runs entirely in your browser."
     />
-    <link rel="canonical" href="http://localhost:5000/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="application-name" content="Diffly" />
+    <link rel="canonical" href="https://www.thediffly.com/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Diffly" />
-    <meta property="og:title" content="Diffly — See every change instantly" />
+    <meta property="og:title" content="Diffly — Free Online Text Comparison & Diff Checker" />
     <meta
       property="og:description"
-      content="Compare text side by side with private word and line diffs that run entirely in your browser."
+      content="Compare two texts side by side and instantly find additions, removals, and edits. Free, fast, and private."
     />
-    <meta property="og:url" content="http://localhost:5000/" />
-    <meta property="og:image" content="http://localhost:5000/og-image.png" />
-    <meta property="og:image:secure_url" content="http://localhost:5000/og-image.png" />
+    <meta property="og:url" content="https://www.thediffly.com/" />
+    <meta property="og:image" content="https://www.thediffly.com/og-image.png" />
+    <meta property="og:image:secure_url" content="https://www.thediffly.com/og-image.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1536" />
     <meta property="og:image:height" content="1024" />
     <meta property="og:image:alt" content="Diffly side-by-side text comparison interface" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Diffly — See every change instantly" />
+    <meta name="twitter:title" content="Diffly — Free Online Text Comparison & Diff Checker" />
     <meta
       name="twitter:description"
-      content="Compare text side by side with private word and line diffs that run entirely in your browser."
+      content="Compare two texts side by side and instantly find additions, removals, and edits. Free, fast, and private."
     />
-    <meta name="twitter:image" content="http://localhost:5000/og-image.png" />
+    <meta name="twitter:image" content="https://www.thediffly.com/og-image.png" />
     <meta name="twitter:image:alt" content="Diffly side-by-side text comparison interface" />
     <meta name="theme-color" content="#ffffff" />
-    <title>Diffly — See every change instantly</title>
-    <link rel="stylesheet" href="/src/styles.css?v=5" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://www.thediffly.com/#website",
+            "url": "https://www.thediffly.com/",
+            "name": "Diffly",
+            "description": "A free, private online text comparison and diff checker."
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://www.thediffly.com/#application",
+            "name": "Diffly",
+            "url": "https://www.thediffly.com/",
+            "description": "Compare two texts side by side and find additions, removals, and changes with word-level or line-level highlighting.",
+            "applicationCategory": "UtilitiesApplication",
+            "applicationSubCategory": "Text Comparison Tool",
+            "operatingSystem": "Any operating system with a modern web browser",
+            "browserRequirements": "Requires JavaScript and a modern web browser",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Word-level text comparison",
+              "Line-level text comparison",
+              "Side-by-side diff highlighting",
+              "Ignore letter case",
+              "Normalize whitespace",
+              "Private in-browser processing"
+            ],
+            "image": "https://www.thediffly.com/og-image.png"
+          }
+        ]
+      }
+    </script>
+    <title>Diffly — Free Online Text Comparison & Diff Checker</title>
+    <link rel="stylesheet" href="/src/styles.css?v=6" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/app.js?v=3"></script>
+    <div id="root">
+      <main class="initial-content">
+        <h1>Free online text comparison and diff checker</h1>
+        <p>Compare two versions of text side by side and instantly find additions, removals, and edits.</p>
+        <section>
+          <h2>Private text comparison in your browser</h2>
+          <p>Diffly compares text locally. Your content is not uploaded to a server or shared with a third party.</p>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/app.js?v=4"></script>
   </body>
 </html>

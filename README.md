@@ -90,7 +90,21 @@ The `.vercelignore` file also keeps generated output, tests, and non-production 
 
 ## Social link preview
 
-The production build publishes `design/implementation.png` as `/og-image.png` and adds Open Graph and X/Twitter metadata automatically. Vercel's production URL is injected during the build, so sharing the deployed link displays the Diffly interface preview without hardcoding a domain.
+The production build publishes `design/implementation.png` as `/og-image.png` and adds Open Graph and X/Twitter metadata automatically. Social previews consistently use the canonical `https://www.thediffly.com` URL.
+
+## Search engine optimization
+
+The production build uses `https://www.thediffly.com` as the canonical URL and generates:
+
+- Search-friendly title and description metadata
+- Open Graph and X/Twitter sharing metadata
+- `SoftwareApplication` and `WebSite` structured data
+- `/robots.txt` with a sitemap reference
+- `/sitemap.xml` containing the canonical homepage
+- Semantic, indexable page content that is available before JavaScript renders
+- A web app manifest and SVG favicon
+
+After deployment, add `https://www.thediffly.com` to Google Search Console and submit `https://www.thediffly.com/sitemap.xml` to request discovery. Indexing is controlled by search engines and is not guaranteed to be immediate.
 
 ## Project structure
 
