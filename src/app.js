@@ -41,7 +41,12 @@ const initialContent = readSessionContent(window.sessionStorage, {
 const state = {
   original: initialContent.original,
   revised: initialContent.revised,
-  options: { mode: "words", ignoreCase: false, trimWhitespace: false },
+  options: {
+    mode: "words",
+    ignoreCase: false,
+    trimWhitespace: false,
+    syncHorizontalScroll: true,
+  },
   showResults: true,
 };
 
@@ -73,6 +78,9 @@ document.querySelector("#root").innerHTML = `
             </label>
             <label class="check-control">
               <input id="trim-whitespace" type="checkbox"/><span aria-hidden="true"></span>Trim whitespace
+            </label>
+            <label class="check-control">
+              <input id="sync-horizontal-scroll" type="checkbox" checked/><span aria-hidden="true"></span>Scroll Panes Together
             </label>
           </div>
           <div class="toolbar-actions">
@@ -215,6 +223,7 @@ function createEditorPane(title, key, placeholder) {
   const textarea = makeElement("textarea");
   textarea.value = state[key];
   textarea.placeholder = placeholder;
+  textarea.wrap = "off";
   textarea.spellcheck = false;
   textarea.setAttribute("aria-label", `${title} text`);
   textarea.addEventListener("input", () => {
@@ -225,6 +234,27 @@ function createEditorPane(title, key, placeholder) {
   return { pane, textarea };
 }
 
+function getHorizontalScrollers() {
+  return [...paneGrid.querySelectorAll(".diff-lines, .editor-pane textarea")];
+}
+
+function syncHorizontalScrollers() {
+  const scrollers = getHorizontalScrollers();
+  let isSyncing = false;
+  scrollers.forEach((source) => {
+    source.addEventListener("scroll", () => {
+      if (!state.options.syncHorizontalScroll || isSyncing) return;
+      isSyncing = true;
+      scrollers.forEach((target) => {
+        if (target !== source && target.scrollLeft !== source.scrollLeft) {
+          target.scrollLeft = source.scrollLeft;
+        }
+      });
+      window.requestAnimationFrame(() => { isSyncing = false; });
+    }, { passive: true });
+  });
+}
+
 function render() {
   document.querySelector("#words-mode").classList.toggle("active", state.options.mode === "words");
   document.querySelector("#lines-mode").classList.toggle("active", state.options.mode === "lines");
@@ -232,6 +262,7 @@ function render() {
   document.querySelector("#lines-mode").setAttribute("aria-pressed", String(state.options.mode === "lines"));
   document.querySelector("#ignore-case").checked = state.options.ignoreCase;
   document.querySelector("#trim-whitespace").checked = state.options.trimWhitespace;
+  document.querySelector("#sync-horizontal-scroll").checked = state.options.syncHorizontalScroll;
   paneGrid.replaceChildren();
   summary.replaceChildren();
 
@@ -257,6 +288,7 @@ function render() {
     paneGrid.append(original.pane, revised.pane);
     window.requestAnimationFrame(() => original.textarea.focus());
   }
+  syncHorizontalScrollers();
 }
 
 function editTexts() {
@@ -277,6 +309,13 @@ document.querySelector("#words-mode").addEventListener("click", () => { state.op
 document.querySelector("#lines-mode").addEventListener("click", () => { state.options.mode = "lines"; render(); });
 document.querySelector("#ignore-case").addEventListener("change", (event) => { state.options.ignoreCase = event.target.checked; render(); });
 document.querySelector("#trim-whitespace").addEventListener("change", (event) => { state.options.trimWhitespace = event.target.checked; render(); });
+document.querySelector("#sync-horizontal-scroll").addEventListener("change", (event) => {
+  state.options.syncHorizontalScroll = event.target.checked;
+  if (event.target.checked) {
+    const [source, ...targets] = getHorizontalScrollers();
+    targets.forEach((target) => { target.scrollLeft = source?.scrollLeft ?? 0; });
+  }
+});
 document.querySelector("#compare-button").addEventListener("click", compare);
 document.querySelector("#clear-button").addEventListener("click", () => {
   state.original = "";

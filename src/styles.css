@@ -253,12 +253,11 @@ main { padding: 0 clamp(20px, 3.2vw, 52px) 32px; }
   border-radius: 8px;
   background: transparent;
   color: #71819a;
-  opacity: 0;
+  opacity: 1;
   cursor: pointer;
   transition: opacity 140ms ease, background 140ms ease;
 }
 
-.diff-pane:hover .edit-button, .edit-button:focus-visible { opacity: 1; }
 .edit-button:hover { background: var(--surface-soft); }
 .edit-button svg { width: 18px; height: 18px; }
 
