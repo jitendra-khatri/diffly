@@ -28,6 +28,10 @@ await Promise.all([
   writeFile(path.join(outputDirectory, "index.html"), productionHtml),
   writeFile(path.join(outputDirectory, "robots.txt"), robots),
   writeFile(path.join(outputDirectory, "sitemap.xml"), sitemap),
+  cp(
+    path.join(projectRoot, "google5b4dd72cb6016cff.html"),
+    path.join(outputDirectory, "google5b4dd72cb6016cff.html"),
+  ),
   cp(path.join(projectRoot, "design", "implementation.png"), path.join(outputDirectory, "og-image.png")),
   cp(path.join(projectRoot, "favicon.svg"), path.join(outputDirectory, "favicon.svg")),
   cp(path.join(projectRoot, "site.webmanifest"), path.join(outputDirectory, "site.webmanifest")),
