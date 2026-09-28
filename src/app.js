@@ -55,7 +55,9 @@ const state = {
 document.querySelector("#root").innerHTML = `
   <div class="app-shell">
     <header class="site-header">
-      <a class="brand" href="#top" aria-label="Diffly home">Diffly</a>
+      <a class="brand" href="#top" aria-label="Diffly home">
+        <img class="brand-logo" src="/diffly-logo.png" width="510" height="168" alt="Diffly" />
+      </a>
       <div class="header-meta">
         <span class="privacy-note">${icons.lock}Your text never leaves this browser</span>
         <span class="header-divider" aria-hidden="true"></span>

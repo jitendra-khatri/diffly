@@ -33,6 +33,7 @@ await Promise.all([
     path.join(outputDirectory, "google5b4dd72cb6016cff.html"),
   ),
   cp(path.join(projectRoot, "design", "implementation.png"), path.join(outputDirectory, "og-image.png")),
+  cp(path.join(projectRoot, "assets", "diffly-logo.png"), path.join(outputDirectory, "diffly-logo.png")),
   cp(path.join(projectRoot, "favicon.svg"), path.join(outputDirectory, "favicon.svg")),
   cp(path.join(projectRoot, "site.webmanifest"), path.join(outputDirectory, "site.webmanifest")),
   cp(path.join(projectRoot, "src", "app.js"), path.join(outputDirectory, "src", "app.js")),
