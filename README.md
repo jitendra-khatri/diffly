@@ -9,6 +9,7 @@ A fast, privacy-first text comparison tool with side-by-side word and line diffs
 - Side-by-side text comparison
 - Word-level and line-level diff modes
 - Clear highlighting for additions, removals, and changes
+- Sticky change navigator with previous, next, and direct marker navigation
 - Options to ignore letter case and normalize whitespace
 - Swap, clear, and edit controls
 - Keyboard shortcuts for faster comparisons

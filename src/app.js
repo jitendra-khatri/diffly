@@ -9,6 +9,8 @@ const icons = {
   compare: icon('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>'),
   pencil: icon('<path d="m4 20 4.2-1 10.6-10.6a2 2 0 0 0-2.8-2.8L5.4 16.2 4 20Z"/><path d="m14.5 7.1 2.8 2.8"/>'),
   close: icon('<path d="m6 6 12 12M18 6 6 18"/>'),
+  previous: icon('<path d="m6 14 6-6 6 6"/>'),
+  next: icon('<path d="m6 10 6 6 6-6"/>'),
 };
 
 const originalSample = `Our product helps teams work together more effectively.
@@ -89,6 +91,7 @@ document.querySelector("#root").innerHTML = `
             <button class="button primary" id="compare-button" type="button">${icons.compare}Compare</button>
           </div>
         </div>
+        <nav class="change-navigator" id="change-navigator" aria-label="Navigate text changes" hidden></nav>
         <div class="pane-grid" id="pane-grid"></div>
         <footer class="status-rail" aria-live="polite">
           <div class="summary" id="summary" aria-label="Comparison summary"></div>
@@ -145,6 +148,7 @@ document.querySelector("#root").innerHTML = `
           <li>Green marks text added to the revision.</li>
           <li>Everything runs locally—your text is never uploaded.</li>
           <li>Your text is kept only for this tab and cleared when it closes.</li>
+          <li>Use the change navigator to jump directly between edits.</li>
         </ol>
         <p class="shortcut">Tip: press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to compare, or <kbd>Esc</kbd> to edit.</p>
       </section>
@@ -154,6 +158,13 @@ document.querySelector("#root").innerHTML = `
 const paneGrid = document.querySelector("#pane-grid");
 const summary = document.querySelector("#summary");
 const modal = document.querySelector("#help-modal");
+const changeNavigator = document.querySelector("#change-navigator");
+let activeChangeIndex = 0;
+let changeEntries = [];
+let changePosition;
+let previousChangeButton;
+let nextChangeButton;
+let scrollUpdateFrame;
 
 function makeElement(tag, className, text) {
   const element = document.createElement(tag);
@@ -196,12 +207,13 @@ function createDiffPane(title, side, rows) {
   const lines = makeElement("div", "diff-lines");
   lines.setAttribute("role", "table");
   lines.setAttribute("aria-label", `${title} diff result`);
-  rows.forEach((row) => {
+  rows.forEach((row, rowIndex) => {
     const relevant = side === "left"
       ? row.kind === "remove" || row.kind === "change"
       : row.kind === "add" || row.kind === "change";
     const line = makeElement("div", `diff-row ${relevant ? `${side}-changed` : ""}`);
     line.setAttribute("role", "row");
+    line.dataset.rowIndex = String(rowIndex);
     const numberValue = row[`${side}Number`];
     const number = makeElement("span", "line-number", numberValue ?? "");
     number.setAttribute("role", "cell");
@@ -214,6 +226,116 @@ function createDiffPane(title, side, rows) {
   });
   pane.append(lines);
   return pane;
+}
+
+function getChangeTarget(entry) {
+  const preferredSide = entry.kind === "add" ? "right" : "left";
+  return paneGrid.querySelector(`.diff-pane.${preferredSide} .diff-row[data-row-index="${entry.rowIndex}"]`)
+    || paneGrid.querySelector(`.diff-row[data-row-index="${entry.rowIndex}"]`);
+}
+
+function updateChangeNavigator() {
+  if (!changeEntries.length) return;
+  changePosition.textContent = `Change ${activeChangeIndex + 1} of ${changeEntries.length}`;
+  previousChangeButton.disabled = activeChangeIndex === 0;
+  nextChangeButton.disabled = activeChangeIndex === changeEntries.length - 1;
+  changeNavigator.querySelectorAll(".change-marker").forEach((marker, index) => {
+    const active = index === activeChangeIndex;
+    marker.classList.toggle("active", active);
+    if (active) marker.setAttribute("aria-current", "true");
+    else marker.removeAttribute("aria-current");
+  });
+}
+
+function goToChange(index) {
+  if (!changeEntries.length) return;
+  activeChangeIndex = Math.max(0, Math.min(index, changeEntries.length - 1));
+  updateChangeNavigator();
+  const target = getChangeTarget(changeEntries[activeChangeIndex]);
+  if (!target) return;
+  const viewportTarget = Math.max(
+    changeNavigator.offsetHeight + 18,
+    Math.min(window.innerHeight * 0.42, 360),
+  );
+  const top = target.getBoundingClientRect().top + window.scrollY - viewportTarget;
+  window.scrollTo({
+    top: Math.max(0, top),
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+  });
+  target.classList.remove("change-focus");
+  window.requestAnimationFrame(() => target.classList.add("change-focus"));
+}
+
+function createChangeNavigator(rows) {
+  changeEntries = rows
+    .map((row, rowIndex) => ({ ...row, rowIndex }))
+    .filter((row) => row.kind !== "equal");
+  changeNavigator.replaceChildren();
+  activeChangeIndex = 0;
+
+  if (!changeEntries.length) {
+    changeNavigator.hidden = true;
+    return;
+  }
+
+  changeNavigator.hidden = false;
+  const controls = makeElement("div", "change-navigator-controls");
+  previousChangeButton = makeElement("button", "change-step");
+  previousChangeButton.type = "button";
+  previousChangeButton.setAttribute("aria-label", "Go to previous change");
+  previousChangeButton.innerHTML = `${icons.previous}<span>Previous</span>`;
+  previousChangeButton.addEventListener("click", () => goToChange(activeChangeIndex - 1));
+
+  changePosition = makeElement("span", "change-position");
+  changePosition.setAttribute("aria-live", "polite");
+
+  nextChangeButton = makeElement("button", "change-step");
+  nextChangeButton.type = "button";
+  nextChangeButton.setAttribute("aria-label", "Go to next change");
+  nextChangeButton.innerHTML = `<span>Next</span>${icons.next}`;
+  nextChangeButton.addEventListener("click", () => goToChange(activeChangeIndex + 1));
+  controls.append(previousChangeButton, changePosition, nextChangeButton);
+
+  const track = makeElement("div", "change-track");
+  const lastRowIndex = Math.max(rows.length - 1, 1);
+  changeEntries.forEach((entry, index) => {
+    const marker = makeElement("button", `change-marker ${entry.kind}`);
+    marker.type = "button";
+    marker.style.left = `${Math.max(1, Math.min(99, (entry.rowIndex / lastRowIndex) * 100))}%`;
+    const lineNumber = entry.leftNumber ?? entry.rightNumber ?? entry.rowIndex + 1;
+    marker.setAttribute("aria-label", `Go to change ${index + 1}, line ${lineNumber}`);
+    marker.addEventListener("click", () => goToChange(index));
+    track.append(marker);
+  });
+
+  changeNavigator.append(controls, track);
+  updateChangeNavigator();
+}
+
+function updateActiveChangeFromScroll() {
+  scrollUpdateFrame = undefined;
+  if (changeNavigator.hidden || !changeEntries.length) return;
+  const viewportTarget = Math.min(window.innerHeight * 0.42, 360);
+  let closestIndex = activeChangeIndex;
+  let closestDistance = Number.POSITIVE_INFINITY;
+  changeEntries.forEach((entry, index) => {
+    const target = getChangeTarget(entry);
+    if (!target) return;
+    const distance = Math.abs(target.getBoundingClientRect().top - viewportTarget);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  });
+  if (closestIndex !== activeChangeIndex) {
+    activeChangeIndex = closestIndex;
+    updateChangeNavigator();
+  }
+}
+
+function scheduleScrollUpdate() {
+  if (scrollUpdateFrame !== undefined) return;
+  scrollUpdateFrame = window.requestAnimationFrame(updateActiveChangeFromScroll);
 }
 
 function createEditorPane(title, key, placeholder) {
@@ -272,6 +394,7 @@ function render() {
       createDiffPane("Original", "left", comparison.rows),
       createDiffPane("Revised", "right", comparison.rows),
     );
+    createChangeNavigator(comparison.rows);
     const labels = [
       [comparison.summary.additions, "additions", "additions"],
       [comparison.summary.removals, "removals", "removals"],
@@ -283,6 +406,9 @@ function render() {
       summary.append(item);
     });
   } else {
+    changeEntries = [];
+    changeNavigator.hidden = true;
+    changeNavigator.replaceChildren();
     const original = createEditorPane("Original", "original", "Paste the original text here…");
     const revised = createEditorPane("Revised", "revised", "Paste the revised text here…");
     paneGrid.append(original.pane, revised.pane);
@@ -343,5 +469,8 @@ window.addEventListener("keydown", (event) => {
     else if (state.showResults) editTexts();
   }
 });
+
+window.addEventListener("scroll", scheduleScrollUpdate, { passive: true });
+window.addEventListener("resize", scheduleScrollUpdate);
 
 render();
