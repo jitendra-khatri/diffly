@@ -236,7 +236,12 @@ function getChangeTarget(entry) {
 
 function updateChangeNavigator() {
   if (!changeEntries.length) return;
-  changePosition.textContent = `Change ${activeChangeIndex + 1} of ${changeEntries.length}`;
+  const fullPosition = `Change ${activeChangeIndex + 1} of ${changeEntries.length}`;
+  changePosition.replaceChildren(
+    makeElement("span", "change-word", "Change "),
+    document.createTextNode(`${activeChangeIndex + 1} of ${changeEntries.length}`),
+  );
+  changePosition.setAttribute("aria-label", fullPosition);
   previousChangeButton.disabled = activeChangeIndex === 0;
   nextChangeButton.disabled = activeChangeIndex === changeEntries.length - 1;
   changeNavigator.querySelectorAll(".change-marker").forEach((marker, index) => {
@@ -279,7 +284,6 @@ function createChangeNavigator(rows) {
   }
 
   changeNavigator.hidden = false;
-  const controls = makeElement("div", "change-navigator-controls");
   previousChangeButton = makeElement("button", "change-step");
   previousChangeButton.type = "button";
   previousChangeButton.setAttribute("aria-label", "Go to previous change");
@@ -294,7 +298,6 @@ function createChangeNavigator(rows) {
   nextChangeButton.setAttribute("aria-label", "Go to next change");
   nextChangeButton.innerHTML = `<span>Next</span>${icons.next}`;
   nextChangeButton.addEventListener("click", () => goToChange(activeChangeIndex + 1));
-  controls.append(previousChangeButton, changePosition, nextChangeButton);
 
   const track = makeElement("div", "change-track");
   const lastRowIndex = Math.max(rows.length - 1, 1);
@@ -308,7 +311,7 @@ function createChangeNavigator(rows) {
     track.append(marker);
   });
 
-  changeNavigator.append(controls, track);
+  changeNavigator.append(previousChangeButton, track, changePosition, nextChangeButton);
   updateChangeNavigator();
 }
 
