@@ -28,6 +28,12 @@ Diffly does not use:
 - Analytics or tracking scripts
 - Third-party text-processing services
 
+### Privacy change guardrail
+
+Do not add third-party analytics, advertising, tracking pixels, external scripts, or new network endpoints without a fresh privacy and security review. Any approved integration must update the public privacy claims, the Content Security Policy, and the security checks in the same change.
+
+The deployed Content Security Policy blocks third-party scripts and all browser-initiated network connections by default. It also prevents Diffly from being embedded in an iframe.
+
 ## Run locally
 
 Clone the repository and start the included static server:

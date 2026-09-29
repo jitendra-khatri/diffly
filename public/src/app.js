@@ -306,7 +306,8 @@ function createChangeNavigator(rows) {
   changeEntries.forEach((entry, index) => {
     const marker = makeElement("button", `change-marker ${entry.kind}`);
     marker.type = "button";
-    marker.style.left = `${Math.max(1, Math.min(99, (entry.rowIndex / lastRowIndex) * 100))}%`;
+    const position = Math.round((entry.rowIndex / lastRowIndex) * 20) * 5;
+    marker.dataset.position = String(Math.max(0, Math.min(100, position)));
     const lineNumber = entry.leftNumber ?? entry.rightNumber ?? entry.rowIndex + 1;
     marker.setAttribute("aria-label", `Go to change ${index + 1}, line ${lineNumber}`);
     marker.addEventListener("click", () => goToChange(index));
