@@ -77,8 +77,9 @@ function wordParts(before, after, options) {
 }
 
 export function compareText(beforeText, afterText, options = {}) {
-  const before = beforeText.replace(/\r\n/g, "\n").split("\n");
-  const after = afterText.replace(/\r\n/g, "\n").split("\n");
+  const expandEscapedNewlines = (text) => (options.convertEscapedNewlines ? text.replaceAll("\\n", "\n") : text);
+  const before = expandEscapedNewlines(beforeText).replace(/\r\n/g, "\n").split("\n");
+  const after = expandEscapedNewlines(afterText).replace(/\r\n/g, "\n").split("\n");
   const changes = diffSequence(before, after, options);
   const rows = [];
   let leftLine = 1;

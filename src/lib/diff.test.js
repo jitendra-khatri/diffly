@@ -31,3 +31,20 @@ test("can ignore case and whitespace", () => {
   assert.equal(result.summary.changes, 0);
   assert.equal(result.rows[0].kind, "equal");
 });
+
+test("optionally treats escaped newlines as line breaks", () => {
+  const literalComparison = compareText("first\\nsecond", "first\\nthird", { mode: "lines" });
+  assert.equal(literalComparison.rows.length, 1);
+  assert.equal(literalComparison.rows[0].leftText, "first\\nsecond");
+
+  const expandedComparison = compareText("first\\nsecond", "first\\nthird", {
+    mode: "lines",
+    convertEscapedNewlines: true,
+  });
+  assert.equal(expandedComparison.rows.length, 2);
+  assert.equal(expandedComparison.rows[0].kind, "equal");
+  assert.equal(expandedComparison.rows[0].leftText, "first");
+  assert.equal(expandedComparison.rows[1].kind, "change");
+  assert.equal(expandedComparison.rows[1].leftText, "second");
+  assert.equal(expandedComparison.rows[1].rightText, "third");
+});

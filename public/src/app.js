@@ -47,6 +47,7 @@ const state = {
     mode: "words",
     ignoreCase: false,
     trimWhitespace: false,
+    convertEscapedNewlines: false,
     syncHorizontalScroll: true,
   },
   showResults: true,
@@ -82,6 +83,9 @@ document.querySelector("#root").innerHTML = `
             </label>
             <label class="check-control">
               <input id="trim-whitespace" type="checkbox"/><span aria-hidden="true"></span>Trim whitespace
+            </label>
+            <label class="check-control">
+              <input id="convert-escaped-newlines" type="checkbox"/><span aria-hidden="true"></span>Treat \\n as new lines
             </label>
             <label class="check-control">
               <input id="sync-horizontal-scroll" type="checkbox" checked/><span aria-hidden="true"></span>Scroll Panes Together
@@ -390,6 +394,7 @@ function render() {
   document.querySelector("#lines-mode").setAttribute("aria-pressed", String(state.options.mode === "lines"));
   document.querySelector("#ignore-case").checked = state.options.ignoreCase;
   document.querySelector("#trim-whitespace").checked = state.options.trimWhitespace;
+  document.querySelector("#convert-escaped-newlines").checked = state.options.convertEscapedNewlines;
   document.querySelector("#sync-horizontal-scroll").checked = state.options.syncHorizontalScroll;
   paneGrid.replaceChildren();
   summary.replaceChildren();
@@ -441,6 +446,10 @@ document.querySelector("#words-mode").addEventListener("click", () => { state.op
 document.querySelector("#lines-mode").addEventListener("click", () => { state.options.mode = "lines"; render(); });
 document.querySelector("#ignore-case").addEventListener("change", (event) => { state.options.ignoreCase = event.target.checked; render(); });
 document.querySelector("#trim-whitespace").addEventListener("change", (event) => { state.options.trimWhitespace = event.target.checked; render(); });
+document.querySelector("#convert-escaped-newlines").addEventListener("change", (event) => {
+  state.options.convertEscapedNewlines = event.target.checked;
+  render();
+});
 document.querySelector("#sync-horizontal-scroll").addEventListener("change", (event) => {
   state.options.syncHorizontalScroll = event.target.checked;
   if (event.target.checked) {
