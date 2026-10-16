@@ -48,3 +48,41 @@ test("optionally treats escaped newlines as line breaks", () => {
   assert.equal(expandedComparison.rows[1].leftText, "second");
   assert.equal(expandedComparison.rows[1].rightText, "third");
 });
+
+test("formats JSON and ignores object key order", () => {
+  const result = compareText(
+    '{"profile":{"name":"Ada","active":true},"version":1}',
+    '{"version":1,"profile":{"active":true,"name":"Ada"}}',
+    { mode: "words", formatJson: true },
+  );
+  assert.deepEqual(result.summary, { additions: 0, removals: 0, changes: 0 });
+  assert.ok(result.rows.length > 1);
+});
+
+test("keeps JSON array order and highlights changed values", () => {
+  const result = compareText(
+    '{"items":[1,2],"status":"draft"}',
+    '{"status":"ready","items":[2,1]}',
+    { mode: "words", formatJson: true },
+  );
+  assert.ok(result.summary.changes > 0);
+  assert.ok(result.rows.some((row) => row.leftText.includes('"draft"')));
+  assert.ok(result.rows.some((row) => row.rightText.includes('"ready"')));
+});
+
+test("reports which JSON input is invalid", () => {
+  assert.throws(
+    () => compareText('{"valid":true}', '{"broken":}', { mode: "words", formatJson: true }),
+    /Revised JSON is invalid/,
+  );
+});
+
+test("does not expand escaped newlines inside formatted JSON strings", () => {
+  const result = compareText(
+    '{"message":"first\\nsecond"}',
+    '{"message":"first\\nsecond"}',
+    { mode: "words", formatJson: true, convertEscapedNewlines: true },
+  );
+  assert.deepEqual(result.summary, { additions: 0, removals: 0, changes: 0 });
+  assert.ok(result.rows.some((row) => row.leftText.includes("\\n")));
+});

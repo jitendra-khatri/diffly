@@ -1,4 +1,4 @@
-import { compareText } from "./lib/diff.js?v=2";
+import { compareText } from "./lib/diff.js?v=3";
 import { readSessionContent, writeSessionContent } from "./lib/session.js?v=1";
 
 const icon = (paths) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
@@ -47,6 +47,7 @@ const state = {
     mode: "words",
     ignoreCase: false,
     trimWhitespace: false,
+    formatJson: false,
     convertEscapedNewlines: false,
     syncHorizontalScroll: true,
   },
@@ -84,6 +85,9 @@ document.querySelector("#root").innerHTML = `
             <label class="check-control">
               <input id="trim-whitespace" type="checkbox"/><span aria-hidden="true"></span>Trim whitespace
             </label>
+            <label class="check-control" title="Pretty-print JSON and ignore object key order">
+              <input id="format-json" type="checkbox"/><span aria-hidden="true"></span>Format JSON
+            </label>
             <label class="check-control">
               <input id="convert-escaped-newlines" type="checkbox"/><span aria-hidden="true"></span>Treat \\n as new lines
             </label>
@@ -97,6 +101,7 @@ document.querySelector("#root").innerHTML = `
             <button class="button primary" id="compare-button" type="button">${icons.compare}Compare</button>
           </div>
         </div>
+        <div class="comparison-notice" id="comparison-notice" role="alert" hidden></div>
         <nav class="change-navigator" id="change-navigator" aria-label="Navigate text changes" hidden></nav>
         <div class="pane-grid" id="pane-grid"></div>
         <footer class="status-rail" aria-live="polite">
@@ -154,6 +159,7 @@ document.querySelector("#root").innerHTML = `
           <li>Green marks text added to the revision.</li>
           <li>Everything runs locally—your text is never uploaded.</li>
           <li>Your text is kept only for this tab and cleared when it closes.</li>
+          <li>Use Format JSON to pretty-print JSON and ignore object key order.</li>
           <li>Use the change navigator to jump directly between edits.</li>
         </ol>
         <p class="shortcut">Tip: press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to compare, or <kbd>Esc</kbd> to edit.</p>
@@ -165,6 +171,7 @@ const paneGrid = document.querySelector("#pane-grid");
 const summary = document.querySelector("#summary");
 const modal = document.querySelector("#help-modal");
 const changeNavigator = document.querySelector("#change-navigator");
+const comparisonNotice = document.querySelector("#comparison-notice");
 let activeChangeIndex = 0;
 let changeEntries = [];
 let changePosition;
@@ -394,29 +401,45 @@ function render() {
   document.querySelector("#lines-mode").setAttribute("aria-pressed", String(state.options.mode === "lines"));
   document.querySelector("#ignore-case").checked = state.options.ignoreCase;
   document.querySelector("#trim-whitespace").checked = state.options.trimWhitespace;
-  document.querySelector("#convert-escaped-newlines").checked = state.options.convertEscapedNewlines;
+  document.querySelector("#format-json").checked = state.options.formatJson;
+  const escapedNewlinesInput = document.querySelector("#convert-escaped-newlines");
+  escapedNewlinesInput.checked = state.options.convertEscapedNewlines;
+  escapedNewlinesInput.disabled = state.options.formatJson;
+  escapedNewlinesInput.closest(".check-control").classList.toggle("disabled", state.options.formatJson);
   document.querySelector("#sync-horizontal-scroll").checked = state.options.syncHorizontalScroll;
   paneGrid.replaceChildren();
   summary.replaceChildren();
+  comparisonNotice.hidden = true;
+  comparisonNotice.textContent = "";
 
   if (state.showResults) {
-    const comparison = compareText(state.original, state.revised, state.options);
-    paneGrid.append(
-      createDiffPane("Original", "left", comparison.rows),
-      createDiffPane("Revised", "right", comparison.rows),
-    );
-    createChangeNavigator(comparison.rows);
-    const labels = [
-      [comparison.summary.additions, "additions", "additions"],
-      [comparison.summary.removals, "removals", "removals"],
-      [comparison.summary.changes, comparison.summary.changes === 1 ? "change" : "changes", "changes"],
-    ];
-    labels.forEach(([count, label, type]) => {
-      const item = makeElement("span");
-      item.append(makeElement("strong", `count ${type}`, count), document.createTextNode(` ${label}`));
-      summary.append(item);
-    });
-  } else {
+    let comparison;
+    try {
+      comparison = compareText(state.original, state.revised, state.options);
+    } catch (error) {
+      state.showResults = false;
+      comparisonNotice.textContent = error.message;
+      comparisonNotice.hidden = false;
+    }
+    if (comparison) {
+      paneGrid.append(
+        createDiffPane("Original", "left", comparison.rows),
+        createDiffPane("Revised", "right", comparison.rows),
+      );
+      createChangeNavigator(comparison.rows);
+      const labels = [
+        [comparison.summary.additions, "additions", "additions"],
+        [comparison.summary.removals, "removals", "removals"],
+        [comparison.summary.changes, comparison.summary.changes === 1 ? "change" : "changes", "changes"],
+      ];
+      labels.forEach(([count, label, type]) => {
+        const item = makeElement("span");
+        item.append(makeElement("strong", `count ${type}`, count), document.createTextNode(` ${label}`));
+        summary.append(item);
+      });
+    }
+  }
+  if (!state.showResults) {
     changeEntries = [];
     changeNavigator.hidden = true;
     changeNavigator.replaceChildren();
@@ -446,6 +469,11 @@ document.querySelector("#words-mode").addEventListener("click", () => { state.op
 document.querySelector("#lines-mode").addEventListener("click", () => { state.options.mode = "lines"; render(); });
 document.querySelector("#ignore-case").addEventListener("change", (event) => { state.options.ignoreCase = event.target.checked; render(); });
 document.querySelector("#trim-whitespace").addEventListener("change", (event) => { state.options.trimWhitespace = event.target.checked; render(); });
+document.querySelector("#format-json").addEventListener("change", (event) => {
+  state.options.formatJson = event.target.checked;
+  if (event.target.checked) state.options.convertEscapedNewlines = false;
+  render();
+});
 document.querySelector("#convert-escaped-newlines").addEventListener("change", (event) => {
   state.options.convertEscapedNewlines = event.target.checked;
   render();

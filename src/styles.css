@@ -189,6 +189,7 @@ main { padding: 0 clamp(20px, 3.2vw, 52px) 32px; }
 }
 
 .check-control input:checked + span { border-color: var(--accent); background: var(--accent); }
+.check-control.disabled { opacity: 0.5; cursor: not-allowed; }
 
 .check-control input:checked + span::after {
   width: 8px;
@@ -220,6 +221,18 @@ main { padding: 0 clamp(20px, 3.2vw, 52px) 32px; }
 .button.secondary:hover { border-color: #9fb0c7; background: #fbfcfe; }
 .button.primary { min-width: 128px; background: var(--accent); color: #ffffff; box-shadow: 0 5px 14px rgba(31, 94, 234, 0.2); }
 .button.primary:hover { background: var(--accent-dark); }
+
+.comparison-notice {
+  padding: 12px 18px;
+  border-bottom: 1px solid #f1b9b8;
+  background: #fff2f1;
+  color: #8f1d24;
+  font-size: 14px;
+  font-weight: 620;
+  line-height: 1.5;
+}
+
+.comparison-notice[hidden] { display: none; }
 
 .change-navigator {
   position: sticky;

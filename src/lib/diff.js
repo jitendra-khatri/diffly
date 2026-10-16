@@ -1,5 +1,26 @@
 const WORD_PATTERN = /\s+|[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]+/gu;
 
+function sortJsonValue(value) {
+  if (Array.isArray(value)) return value.map(sortJsonValue);
+  if (value && typeof value === "object") {
+    return Object.keys(value)
+      .sort()
+      .reduce((sorted, key) => {
+        sorted[key] = sortJsonValue(value[key]);
+        return sorted;
+      }, {});
+  }
+  return value;
+}
+
+function formatJson(text, label) {
+  try {
+    return JSON.stringify(sortJsonValue(JSON.parse(text)), null, 2);
+  } catch (error) {
+    throw new Error(`${label} JSON is invalid: ${error.message}`);
+  }
+}
+
 function comparable(value, options) {
   let next = value;
   if (options.ignoreCase) next = next.toLocaleLowerCase();
@@ -77,9 +98,12 @@ function wordParts(before, after, options) {
 }
 
 export function compareText(beforeText, afterText, options = {}) {
-  const expandEscapedNewlines = (text) => (options.convertEscapedNewlines ? text.replaceAll("\\n", "\n") : text);
-  const before = expandEscapedNewlines(beforeText).replace(/\r\n/g, "\n").split("\n");
-  const after = expandEscapedNewlines(afterText).replace(/\r\n/g, "\n").split("\n");
+  const prepareText = (text, label) => {
+    if (options.formatJson) return formatJson(text, label);
+    return options.convertEscapedNewlines ? text.replaceAll("\\n", "\n") : text;
+  };
+  const before = prepareText(beforeText, "Original").replace(/\r\n/g, "\n").split("\n");
+  const after = prepareText(afterText, "Revised").replace(/\r\n/g, "\n").split("\n");
   const changes = diffSequence(before, after, options);
   const rows = [];
   let leftLine = 1;

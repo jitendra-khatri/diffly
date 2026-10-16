@@ -11,6 +11,7 @@ A fast, privacy-first text comparison tool with side-by-side word and line diffs
 - Clear highlighting for additions, removals, and changes
 - Sticky change navigator with previous, next, and direct marker navigation
 - Options to ignore letter case and normalize whitespace
+- JSON formatting with stable object-key sorting and preserved array order
 - Option to treat literal `\n` sequences as line breaks during comparison
 - Swap, clear, and edit controls
 - Keyboard shortcuts for faster comparisons
